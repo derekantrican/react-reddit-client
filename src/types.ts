@@ -12,14 +12,27 @@ export namespace reddit {
           url: string;
         }>;
       }>;
+      secure_media : {
+        reddit_video : {
+          fallback_url : string;
+          is_gif: boolean;
+        };
+      };
       author: string;
       created_utc: number;
       id: string;
       score: number;
       title: string;
       url: string;
+      is_self: boolean;
+      is_video: boolean;
     };
     kind: "t3";
+  }
+
+  export interface RedditVideoProps {
+    id : string;
+    sourceUrl : string;
   }
 
   export interface Subreddit {

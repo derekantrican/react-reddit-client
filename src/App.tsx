@@ -57,7 +57,7 @@ export default function App() {
 
   return (
     <>
-      <aside className="d-flex flex-column">
+      {/* <aside className="d-flex flex-column">
         <div className="creator my-2">
           Created by <a href="https://github.com/ssorallen">ssorallen</a>
           <br />
@@ -67,7 +67,7 @@ export default function App() {
           </a>
         </div>
         <Navigation items={subreddits} />
-      </aside>
+      </aside> */}
       <div className="container-fluid">
         <h1>
           {selectedSubreddit == null ? "Please select a sub" : selectedSubreddit.data.display_name}

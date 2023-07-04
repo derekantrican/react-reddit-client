@@ -68,6 +68,22 @@ export async function loader(
   });
 }
 
+function RedditVideoPlayer({id, sourceUrl} : reddit.RedditVideoProps) {
+  //https://stackoverflow.com/a/67464583/2246411
+  //This *kinda* works for play & pause, but not really at all for seek. Also, the audio isn't truly connected to the video (eg the "mute" control
+  //on the video doesn't work). Maybe should find out how to create a "blob" like RES:
+  //https://github.dev/honestbleeps/Reddit-Enhancement-Suite/blob/21217ded9dd12f4e998f9e67477191afa92e0c9d/lib/modules/showImages.js
+  return (
+    <video id={`v-${id}`} controls src={sourceUrl}
+      onPlay={() => (document.getElementById(`a-${id}`) as HTMLVideoElement).play()}
+      onPause={() => (document.getElementById(`a-${id}`) as HTMLVideoElement).pause()}
+      onSeeked={() => (document.getElementById(`a-${id}`) as HTMLVideoElement).currentTime = (document.getElementById(`v-${id}`) as HTMLVideoElement).currentTime /*Todo: something doesn't work right here */}
+      >
+      <audio id={`a-${id}`} src={sourceUrl.replace(/(?<=DASH_).*(?=.mp4)/, 'audio')}/>
+    </video>
+  );
+}
+
 function Story({ story }: { story: reddit.Story }) {
   const timeAgo = new TimeAgo("en-US");
 
@@ -75,23 +91,38 @@ function Story({ story }: { story: reddit.Story }) {
   // 1000 to convert.
   const createdDateUtc = new Date(story.data.created_utc * 1000);
 
+  // return (
+  //   <li className="row py-1">
+  //     <div className="col-md-1 d-flex align-items-center justify-content-end score">
+  //       {story.data.score}
+  //     </div>
+  //     <div className="col-md-11">
+  //       <h3 className="title">
+  //         <a href={story.data.url}>{story.data.title}</a>
+  //       </h3>
+  //       <div className="author">
+  //         posted by{" "}
+  //         <a href={`https://www.reddit.com/user/${story.data.author}`}>u/{story.data.author}</a>{" "}
+  //         <time dateTime={createdDateUtc.toLocaleString()} title={createdDateUtc.toLocaleString()}>
+  //           {timeAgo.format(createdDateUtc)}
+  //         </time>
+  //       </div>
+  //     </div>
+  //   </li>
+  // );
+
   return (
+    //Todo: fix sizing. Looks alright on mobile, but not great on desktop
     <li className="row py-1">
-      <div className="col-md-1 d-flex align-items-center justify-content-end score">
-        {story.data.score}
-      </div>
-      <div className="col-md-11">
-        <h3 className="title">
-          <a href={story.data.url}>{story.data.title}</a>
-        </h3>
-        <div className="author">
-          posted by{" "}
-          <a href={`https://www.reddit.com/user/${story.data.author}`}>u/{story.data.author}</a>{" "}
-          <time dateTime={createdDateUtc.toLocaleString()} title={createdDateUtc.toLocaleString()}>
-            {timeAgo.format(createdDateUtc)}
-          </time>
-        </div>
-      </div>
+      <h3 className="title">
+        <a href={story.data.url}>{story.data.title}</a>
+      </h3>
+      {story.data.is_self ?
+        null //Todo
+        : story.data.is_video ?
+        <RedditVideoPlayer id={story.data.id} sourceUrl={story.data.secure_media.reddit_video.fallback_url}/>
+        : <img src={story.data.url}/>
+      }
     </li>
   );
 }
